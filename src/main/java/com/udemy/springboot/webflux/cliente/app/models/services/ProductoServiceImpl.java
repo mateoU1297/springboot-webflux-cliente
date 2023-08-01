@@ -1,5 +1,6 @@
 package com.udemy.springboot.webflux.cliente.app.models.services;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,14 +41,13 @@ public class ProductoServiceImpl implements ProductoService {
 
 	@Override
 	public Mono<Producto> update(Producto producto, String id) {
-		// TODO Auto-generated method stub
-		return null;
+		return client.put().uri("/{id}", Collections.singletonMap("id", id)).syncBody(producto).retrieve()
+				.bodyToMono(Producto.class);
 	}
 
 	@Override
 	public Mono<Void> delete(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		return client.delete().uri("/{id}", Collections.singletonMap("id", id)).retrieve().bodyToMono(Void.class);
 	}
 
 	@Override
