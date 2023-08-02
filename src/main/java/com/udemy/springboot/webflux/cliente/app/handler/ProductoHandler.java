@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -62,6 +63,13 @@ public class ProductoHandler {
 	public Mono<ServerResponse> eliminar(ServerRequest request) {
 		String id = request.pathVariable("id");
 		return errorHandler(productoService.delete(id).then(ServerResponse.noContent().build()));
+	}
+
+	public Mono<ServerResponse> upload(ServerRequest request) {
+		String id = request.pathVariable("id");
+		return errorHandler(request.multipartData().map(multipart -> multipart.toSingleValueMap().get("file"))
+				.cast(FilePart.class).flatMap(file -> productoService.upload(file, id))
+				.flatMap(p -> ServerResponse.created(URI.create("/api/client/".concat(p.getId()))).syncBody(p)));
 	}
 
 	private Mono<ServerResponse> errorHandler(Mono<ServerResponse> response) {
